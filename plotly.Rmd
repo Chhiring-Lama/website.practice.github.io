@@ -1,0 +1,111 @@
+---
+title: "plots"
+author: "Chhiring Lama"
+date: "2024-10-22"
+output: html_document
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+library(p8105.datasets)
+
+library(plotly)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+```{r, message = FALSE}
+data(nyc_airbnb)
+
+nyc_airbnb = 
+  nyc_airbnb |> 
+  mutate(rating = review_scores_location / 2) |>
+  select(
+    neighbourhood_group, neighbourhood, rating, price, room_type, lat, long) |>
+  filter(
+    !is.na(rating), 
+    neighbourhood_group == "Manhattan",
+    room_type == "Entire home/apt",
+    price %in% 100:500)
+```
+
+Making interactive plots with plotly
+```{r, message = FALSE}
+nyc_airbnb |>
+  mutate(text_label = str_c("Price: $", price, "\nRating: ", rating, "\nNeighborhood: ", neighbourhood)) |> 
+  plot_ly(
+    x = ~lat, y = ~long, type = "scatter", mode = "markers",
+    color = ~price, text = ~text_label, alpha = 0.5)
+```
+
+Box plot for neighborhood pricing
+```{r}
+nyc_airbnb |> 
+  mutate(neighbourhood = fct_reorder(neighbourhood, price)) |> 
+  ggplot(aes(x = neighbourhood, y = price, fill = neighbourhood)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+Lets count the number of rentals in the neighborhoods
+```{r}
+nyc_airbnb |> 
+  count(neighbourhood) |> 
+  mutate(neighbourhood = fct_reorder(neighbourhood, n)) |> 
+  ggplot(aes(x = neighbourhood, y = n, fill = neighbourhood)) +
+  geom_bar(position = "dodge", stat = "identity")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+`ggplotly`
+```{r}
+scatter_ggplot = 
+  nyc_airbnb |>
+  ggplot(aes(x = lat, y = long, color = price)) +
+  geom_point(alpha = 0.25) +
+  coord_cartesian()
+
+ggplotly(scatter_ggplot)
+```
+
+Box plot for neighborhood pricing
+```{r}
+box_ggplot <- nyc_airbnb |> 
+  mutate(neighbourhood = fct_reorder(neighbourhood, price)) |> 
+  ggplot(aes(x = neighbourhood, y = price, fill = neighbourhood)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggplotly(box_ggplot)
+```
+
+Lets count the number of rentals in the neighborhoods
+```{r}
+bar_ggplot <- nyc_airbnb |> 
+  count(neighbourhood) |> 
+  mutate(neighbourhood = fct_reorder(neighbourhood, n)) |> 
+  ggplot(aes(x = neighbourhood, y = n, fill = neighbourhood)) +
+  geom_bar(position = "dodge", stat = "identity")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggplotly(bar_ggplot)
+```
+

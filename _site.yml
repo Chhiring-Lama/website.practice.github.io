@@ -1,0 +1,18 @@
+name: "Yay internet!"
+output_dir: "."
+navbar:
+  title: "Home"
+  right:
+    - text: "About"
+      href: about.html
+    - text: "Plots"
+      href: plotly.html
+    - text: "Dashboard"
+      href: flexdashboard.html
+    - icon: fa-envelope fa-lg
+      href: mailto:<cyl2159@cumc.columbia.com>
+    - icon: fa-github fa-lg
+      href: http://github.com/<Chhiring-Lama>/
+output:
+  html_document:
+    theme: cerulean
